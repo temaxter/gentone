@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include<math.h>
 #include<string.h>
+
 double *waveform(double frequency, double samples, double Fs, char *wave, double amp, double phase){
 	int i;
 	double	pi=3.141592653;

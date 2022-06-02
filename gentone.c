@@ -6,6 +6,10 @@
  * Compile: gcc gentone.c waveform.c savewav.c -o gentone
  * by Fernando Garcia de la Cruz (fergarciadlc), 2020
  * Last update: 20-July-2020
+ *
+ * temaxter 2022-06-02:
+ * - Added option -n to define number of periods of waveform to create. Overrides option -t.
+ *
  */
 #include<ctype.h>
 #include<stdio.h>
@@ -14,9 +18,9 @@
 #include<time.h>
 #include<string.h>
 
-double *waveform(double,double,double,char *, double, double);
-  int   savewav(double,double,int,char *,double *);
- 
+double *waveform(double frequency, double samples, double Fs, char *wave, double amp, double phase);
+int savewav(double ndatos, double nyquist, int bits, char *file, double *x);
+
 double *x; //signal
 
 int main (int argc, char **argv) {
@@ -29,6 +33,7 @@ int main (int argc, char **argv) {
   int wflag = 0;
   int aflag = 0;
   int pflag = 0;
+  int nflag = 0;
   int help = 0;
   char *userfilename = NULL;
   char *userwaveform = NULL;
@@ -38,6 +43,7 @@ int main (int argc, char **argv) {
   double Fs = 0;
   double phase = 0;
   int bits = 0;
+  int n_periods = 0;
   int index;
   int option;
 
@@ -50,7 +56,7 @@ int main (int argc, char **argv) {
     exit(1);
   }
 
-  while ((option = getopt(argc, argv, "f:t:a:s:b:N:w:d:r:h")) != -1) {
+  while ((option = getopt(argc, argv, "f:t:a:s:b:N:w:d:r:hn:")) != -1) {
     switch (option) {
       case 'f':
         fflag = 1;
@@ -91,6 +97,10 @@ int main (int argc, char **argv) {
        	pflag = 1;
        	phase = atof(optarg)*(3.14159265/180);
        	break;
+      case 'n':
+	nflag = 1;
+	n_periods = atoi(optarg);
+        break;
       case '?':
           fprintf(stderr, usage, argv[0]);
           fprintf(stderr, "\nType %s -h to get help.\n", argv[0]);
@@ -107,7 +117,7 @@ int main (int argc, char **argv) {
     	printf("\n");
     	printf("-f 	Frequency of the signal in Hertz (Mandatory argument)\n");
     	printf("\nOPTIONS:\n");
-    	printf("-t	Time of the signal in seconds (default: 1 s)\n");
+	printf("-t	Time of the signal in seconds (default: 1 s)\n");
     	printf("-a	Amplitude of the signal (0-1) (default: 1)\n");
     	printf("-s 	Sampling frequency in Hertz   (default: 44100 Hz)\n");
     	printf("-b 	Bit depth, only 16 or 8       (default: 16 bits)\n");
@@ -117,7 +127,8 @@ int main (int argc, char **argv) {
     	printf("   	          <sawtooth> \n");
     	printf("-d 	Phase Shift in degrees        (default: 0)\n");
     	printf("-r 	Phase Shift in radians        (default: 0)\n");
-    	printf("-N 	filename (default: \"[freq]Hz--waveform--date--time.wav\")\n");
+	printf("-N 	filename (default: \"[freq]Hz--waveform--date--time.wav\")\n");
+	printf("-n	number of periods of the waveform to create (overrides option -t)\n");
     	exit(1);
     	}
     if (fflag == 0) { // -f is mandatory 	
@@ -164,6 +175,18 @@ int main (int argc, char **argv) {
     }
   }
 
+  //  if (nflag == 0) ; // not necessary
+  if (nflag == 1){
+    if (n_periods <= 0){
+	fprintf(stderr, "%s syntax error: number of periods must be greater than 0\n", argv[0]);
+      	exit(1);
+    }
+    else
+      {
+	duration = 1.0 / frequency * n_periods;
+      }
+  }
+
   for (index = optind; index < argc; index++){
   	printf ("Non-option argument %s\n", argv[index]);
   	exit(1);
@@ -202,8 +225,8 @@ int main (int argc, char **argv) {
 
   printf("File: '%s' generated.\n", filename);
   printf("\nValues:\n");
-  printf("  Frequency = %.2f Hz\n", frequency);
-  printf("  Duration  = %.2f s\n", duration);
+  printf("  Frequency = %.3f Hz\n", frequency);
+  printf("  Duration  = %.3f s\n", duration);
   printf("  Amplitude = %.2f \n", amplitude);
   printf("  Waveform = '%s'\n", bufferwaveform);
   printf("  Phase Shift = %.4f rad \n", phase);

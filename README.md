@@ -40,7 +40,8 @@ where:
 			  <sawtooth>
 	-d	Phase Shift in degrees 		(default: 0)
 	-r	Phase Shift in radians		(default: 0)
-	-N 	filename (default: "[freq]Hz--waveform--date--time.wav")
+	-N	filename (default: "[freq]Hz--waveform--date--time.wav")
+	-n	number of periods of the wafeform to create (overrides option -t)
 
 Type `gentone -h` to see the usage and help.
 
@@ -78,5 +79,6 @@ And then will generate the file that could be useful to show/explain the [Aliasi
 
 ## License:
 Copyright (c) 2020 Fernando García de la Cruz
+Copyright (c) 2022 temaxter
 
 Licensed under the [MIT License](LICENSE).
