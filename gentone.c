@@ -43,6 +43,7 @@ int main (int argc, char **argv) {
   double Fs = 0;
   double phase = 0;
   int bits = 0;
+  int samples;
   int n_periods = 0;
   int index;
   int option;
@@ -213,14 +214,21 @@ int main (int argc, char **argv) {
   	sprintf(filename,"%.2fHz--%s%s.wav",frequency, bufferwaveform, buffer);
   }
 
-  x = waveform(frequency,duration*Fs,Fs,bufferwaveform, amplitude, phase);
+  samples = (int) (duration * Fs);
+
+  if (samples % 2)
+    {
+      samples += 1;
+    }
+
+  x = waveform(frequency,samples,Fs,bufferwaveform, amplitude, phase);
   if (x==0){ //check for errors
   	fprintf(stderr, "%s syntax error: invalid waveform \n", argv[0]);
   	fprintf(stderr, "\nType %s -h to get help.\n", argv[0]);
     exit(1);
   }
 // savewav(duration in samples, sampling frequency, bits, filename, signal)
-  savewav(duration*Fs, Fs, bits, filename, x);
+  savewav(samples, Fs, bits, filename, x);
   free(x);
 
   printf("File: '%s' generated.\n", filename);

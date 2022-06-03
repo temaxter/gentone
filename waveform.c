@@ -12,6 +12,7 @@ double *waveform(double frequency, double samples, double Fs, char *wave, double
 	double	pi=3.141592653;
 	double	x=0.0;
 	double *y;
+
 	if (strcmp(wave,"sine") == 0){
 		y=(double *)malloc((int)samples*sizeof(double));
 		for (i=0; i<samples; i++){ 
